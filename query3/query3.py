@@ -52,6 +52,14 @@ combined_df = flattened_df.join(
     how="inner"
 )
 
+# combined_df = flattened_df.hint('SHUFFLE_REPLICATE_NL').join(
+#     med_household_income_df,
+#     flattened_df["ZCTA10"] == med_household_income_df["Zip Code"],
+#     how="inner"
+# )
+# combined_df.explain(mode="formatted")
+# combined_df.show()
+
 # Clean Median Income
 combined_df = combined_df.withColumn(
     "Median Income",
@@ -101,6 +109,13 @@ joined_df = crimes_df.join(
     ST_Within(crimes_df["geom"], flattened_df["geometry"]), 
     "inner"
 )
+# joined_df = crimes_df.hint('SHUFFLE_REPLICATE_NL').join(
+#     flattened_df, 
+#     ST_Within(crimes_df["geom"], flattened_df["geometry"]), 
+#     "inner"
+# )
+# joined_df.explain(mode="formatted")
+# joined_df.show()
 
 selected_columns = ["DR_NO", "LON", "LAT", "geom", "geometry", "COMM"]
 joined_df = joined_df.select(*selected_columns)
@@ -118,6 +133,14 @@ result_df = joined_df.join(
     on=["COMM"], 
     how="inner"
 )
+
+# result_df = joined_df.hint('SHUFFLE_REPLICATE_NL').join(
+#     combined_df, 
+#     on=["COMM"], 
+#     how="inner"
+# )
+# result_df.explain(mode="formatted")
+# result_df.show()
 
 result_df = result_df.withColumn("Crimes Per Capita", (col("Number of Cases") / col("Total Population")))
 
